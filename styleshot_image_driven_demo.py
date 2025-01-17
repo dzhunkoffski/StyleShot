@@ -16,14 +16,12 @@ def main(args):
     base_model_path = "runwayml/stable-diffusion-v1-5"
     transformer_block_path = "laion/CLIP-ViT-H-14-laion2B-s32B-b79K"
     
-    device = "cuda"
+    device = "cpu"
 
     if args.preprocessor == "Lineart":
-        detector = LineartDetector()
-        styleshot_model_path = "Gaojunyao/StyleShot_lineart"
+        styleshot_model_path = "StyleShot_lineart"
     elif args.preprocessor == "Contour":
-        detector = SOFT_HEDdetector()
-        styleshot_model_path = "Gaojunyao/StyleShot"
+        styleshot_model_path = "StyleShot"
     else:
         raise ValueError("Invalid preprocessor")
 
@@ -47,6 +45,15 @@ def main(args):
     
     pipe = StyleContentStableDiffusionControlNetPipeline.from_pretrained(base_model_path, controlnet=content_fusion_encoder)
     styleshot = StyleShot(device, pipe, ip_ckpt, style_aware_encoder_path, transformer_block_path)
+
+    if args.preprocessor == "Lineart":
+        detector = LineartDetector()
+        styleshot_model_path = "StyleShot_lineart"
+    elif args.preprocessor == "Contour":
+        detector = SOFT_HEDdetector()
+        styleshot_model_path = "StyleShot"
+    else:
+        raise ValueError("Invalid preprocessor")
 
     style_image = Image.open(args.style)
     # processing content image
